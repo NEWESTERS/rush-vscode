@@ -1,0 +1,86 @@
+{
+  "name": "rush-vscode",
+  "displayName": "rush-vscode",
+  "description": "Utilities for Rush monorepos",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.77.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "rush-vscode.buildDeps",
+        "title": "Rush: Build dependencies"
+      },
+      {
+        "command": "rush-vscode.runPackageScript",
+        "title": "Rush: Run package script"
+      },
+      {
+        "command": "rush-vscode.runScript",
+        "title": "Rush: Run script",
+        "icon": "$(run)"
+      }
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "rush-vscode.main",
+          "name": "@microsoft/rush"
+        }
+      ]
+    },
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "rush-vscode.buildDeps",
+          "when": "view == rush-vscode.main && viewItem == monorepoPackage"
+        },
+        {
+          "command": "rush-vscode.runPackageScript",
+          "when": "view == rush-vscode.main && viewItem == monorepoPackage"
+        },
+        {
+          "command": "rush-vscode.runScript",
+          "when": "view === rush-vscode.main && viewItem == script",
+          "group": "inline"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "@types/vscode": "^1.77.0",
+    "@typescript-eslint/eslint-plugin": "^5.56.0",
+    "@typescript-eslint/parser": "^5.56.0",
+    "@vscode/test-electron": "^2.3.0",
+    "eslint": "^8.36.0",
+    "glob": "^8.1.0",
+    "mocha": "^10.2.0",
+    "ts-loader": "^9.4.2",
+    "typescript": "^4.9.5",
+    "webpack": "^5.76.3",
+    "webpack-cli": "^5.0.1"
+  },
+  "dependencies": {
+    "json5": "^2.2.3"
+  }
+}
