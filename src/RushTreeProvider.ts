@@ -3,12 +3,17 @@ import {
   RushProject,
   CliCommand,
   ScriptGroup,
-  RushTree,
+  RushProjectGroup,
   RushMonorepo,
 } from "./models";
-import { RushProjectView, CliScriptView, ScriptGroupView } from "./views";
+import {
+  RushProjectView,
+  CliScriptView,
+  ScriptGroupView,
+  RushProjectGroupView,
+} from "./views";
 
-type RushTreeItem = RushProject | CliCommand | ScriptGroup | RushTree;
+type RushTreeItem = RushProject | CliCommand | ScriptGroup | RushProjectGroup;
 
 export class RushTreeProvider implements vscode.TreeDataProvider<RushTreeItem> {
   private _monorepo: RushMonorepo;
@@ -26,15 +31,8 @@ export class RushTreeProvider implements vscode.TreeDataProvider<RushTreeItem> {
       return new CliScriptView(element);
     } else if (element instanceof ScriptGroup) {
       return new ScriptGroupView(element);
-    } else if (element instanceof RushTree) {
-      const view = new vscode.TreeItem(
-        "Projects",
-        vscode.TreeItemCollapsibleState.Expanded
-      );
-
-      view.iconPath = new vscode.ThemeIcon("symbol-function");
-
-      return view;
+    } else if (element instanceof RushProjectGroup) {
+      return new RushProjectGroupView(element);
     }
 
     throw new Error("Unknown element type");
@@ -44,29 +42,27 @@ export class RushTreeProvider implements vscode.TreeDataProvider<RushTreeItem> {
     element?: RushTreeItem | undefined
   ): vscode.ProviderResult<RushTreeItem[]> {
     if (!element) {
-      return [ScriptGroup.createGlobal(), new RushTree(this._monorepo)];
+      return [
+        ScriptGroup.createGlobal(),
+        new RushProjectGroup("Projects", this._monorepo),
+      ];
     }
 
     if (element instanceof RushProject) {
-      const dependencyNames: string[] = [];
+      const children: RushTreeItem[] = [ScriptGroup.fromProject(element)];
 
-      element.dependencies.forEach((_, packageName) => {
-        dependencyNames.push(packageName);
-      });
+      if (element.hasDependencies) {
+        children.push(
+          new RushProjectGroup("Dependencies", this._monorepo, element)
+        );
+      }
 
-      return Promise.all(
-        dependencyNames.map((packageName) =>
-          this._monorepo.getProject(packageName)
-        )
-      ).then((dependencies) => [
-        ScriptGroup.fromProject(element),
-        ...dependencies,
-      ]);
+      return children;
     } else if (element instanceof CliCommand) {
       return [];
     } else if (element instanceof ScriptGroup) {
       return element.scripts;
-    } else if (element instanceof RushTree) {
+    } else if (element instanceof RushProjectGroup) {
       return element.getChildren();
     }
   }

@@ -2,6 +2,8 @@
 
 Extension with some shortcuts for work with [@microsoft/rush](https://rushjs.io) monorepo.
 
+![rush-vscode main view](./assets/preview.png)
+
 ## Features
 
 - Make everyday work in VSCode GUI (`rush update`, `rush build`, `rush change`)

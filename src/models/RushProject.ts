@@ -20,6 +20,10 @@ export class RushProject {
     return this._monorepo.getPackagePath(this.name);
   }
 
+  public get hasDependencies(): boolean {
+    return this._localDependencies.size !== 0;
+  }
+
   public readonly name: string;
 
   public readonly version: string;
