@@ -75,6 +75,23 @@ export class RushProject {
     }
   }
 
+  public async start(): Promise<void> {
+    let startScript: CliCommand | undefined;
+
+    for (const [scriptName, script] of this._scripts) {
+      if (scriptName === "start") {
+        startScript = script;
+        break;
+      }
+    }
+
+    if (!startScript) {
+      throw new Error(`Package "${this.name}" has no "start" script`);
+    }
+
+    await startScript.execute();
+  }
+
   public async promptScript(title?: string): Promise<CliCommand | undefined> {
     const scriptName = await vscode.window
       .showQuickPick(

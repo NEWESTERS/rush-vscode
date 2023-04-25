@@ -3,21 +3,19 @@
 import * as vscode from "vscode";
 
 import { RushCommandManager } from "./CommandManager";
-import { RushMonorepo } from "./models";
 import { RushTreeProvider } from "./RushTreeProvider";
+import { MonorepoProvider } from "./MonorepoProvider";
 
 export function activate(context: vscode.ExtensionContext) {
-  RushMonorepo.init().then((monorepo) => {
-    const monorepoProvider = new RushTreeProvider(monorepo);
+  const monorepoProvider = new MonorepoProvider();
 
-    vscode.window.createTreeView("rush-vscode.main", {
-      treeDataProvider: monorepoProvider,
-    });
-
-    const commands = new RushCommandManager(context, monorepo);
-
-    commands.init();
+  vscode.window.createTreeView("rush-vscode.main", {
+    treeDataProvider: new RushTreeProvider(monorepoProvider),
   });
+
+  const commands = new RushCommandManager(context, monorepoProvider);
+
+  commands.init();
 }
 
 // This method is called when your extension is deactivated

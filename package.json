@@ -2,7 +2,7 @@
   "name": "rush-vscode",
   "displayName": "rush-vscode",
   "description": "Utilities for Rush monorepos",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.77.0"
   },
@@ -20,7 +20,13 @@
     "commands": [
       {
         "command": "rush-vscode.buildDeps",
-        "title": "Rush: Build dependencies"
+        "title": "Rush: Build dependencies",
+        "icon": "$(type-hierarchy)"
+      },
+      {
+        "command": "rush-vscode.startPackage",
+        "title": "Rush: Start package",
+        "icon": "$(run)"
       },
       {
         "command": "rush-vscode.runPackageScript",
@@ -44,11 +50,17 @@
       "view/item/context": [
         {
           "command": "rush-vscode.buildDeps",
-          "when": "view == rush-vscode.main && viewItem == monorepoPackage"
+          "when": "view == rush-vscode.main && viewItem == monorepoPackage",
+          "group": "inline"
         },
         {
           "command": "rush-vscode.runPackageScript",
           "when": "view == rush-vscode.main && viewItem == monorepoPackage"
+        },
+        {
+          "command": "rush-vscode.startPackage",
+          "when": "view == rush-vscode.main && viewItem == monorepoPackage",
+          "group": "inline"
         },
         {
           "command": "rush-vscode.runScript",

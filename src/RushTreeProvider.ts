@@ -4,7 +4,6 @@ import {
   CliCommand,
   ScriptGroup,
   RushProjectGroup,
-  RushMonorepo,
 } from "./models";
 import {
   RushProjectView,
@@ -12,14 +11,15 @@ import {
   ScriptGroupView,
   RushProjectGroupView,
 } from "./views";
+import { MonorepoProvider } from "./MonorepoProvider";
 
 type RushTreeItem = RushProject | CliCommand | ScriptGroup | RushProjectGroup;
 
 export class RushTreeProvider implements vscode.TreeDataProvider<RushTreeItem> {
-  private _monorepo: RushMonorepo;
+  private _provider: MonorepoProvider;
 
-  public constructor(monorepo: RushMonorepo) {
-    this._monorepo = monorepo;
+  public constructor(provider: MonorepoProvider) {
+    this._provider = provider;
   }
 
   public getTreeItem(
@@ -42,19 +42,20 @@ export class RushTreeProvider implements vscode.TreeDataProvider<RushTreeItem> {
     element?: RushTreeItem | undefined
   ): vscode.ProviderResult<RushTreeItem[]> {
     if (!element) {
-      return [
+      return this._provider.monorepo.then((monorepo) => [
         ScriptGroup.createGlobal(),
-        new RushProjectGroup("Projects", this._monorepo),
-      ];
+        new RushProjectGroup("Projects", monorepo),
+      ]);
     }
 
     if (element instanceof RushProject) {
       const children: RushTreeItem[] = [ScriptGroup.fromProject(element)];
 
       if (element.hasDependencies) {
-        children.push(
-          new RushProjectGroup("Dependencies", this._monorepo, element)
-        );
+        return this._provider.monorepo.then((monorepo) => [
+          ...children,
+          new RushProjectGroup("Dependencies", monorepo, element),
+        ]);
       }
 
       return children;
